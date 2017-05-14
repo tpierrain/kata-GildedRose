@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GildedRose.Console
 {
@@ -28,10 +29,18 @@ namespace GildedRose.Console
 
                           };
 
-            app.UpdateQuality();
 
-            System.Console.ReadKey();
+            System.Console.WriteLine("Type <enter> to pass to the next day or <esc> to quit:");
+            System.Console.WriteLine();
 
+            while (System.Console.ReadKey().Key != ConsoleKey.Escape)
+            {
+                System.Console.WriteLine("Go to next day...");
+                app.UpdateQuality();
+            }
+
+            System.Console.WriteLine("Ciao...");
+            System.Console.ReadLine();
         }
 
         public void UpdateQuality()
