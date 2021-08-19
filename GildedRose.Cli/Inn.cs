@@ -40,6 +40,8 @@ namespace GildedRose.Cli
                 return;
             }
 
+            DecrementSellIn(item);
+
             switch (item.Name)
             {
                 case "Aged Brie":
@@ -54,53 +56,14 @@ namespace GildedRose.Cli
                 }
                 case "Conjured Mana Cake":
                 {
-                    DecreaseQualityWhenPositive(item);
-                    DecreaseQualityWhenPositive(item);
-
-                    DecrementSellIn(item);
-
-                    if (item.SellIn < 0)
-                    {
-                        DecreaseQualityWhenPositive(item);
-                    }
-
+                    HandleConjured(item);
                     break;
                 }
                 default:
                 {
-                    DecreaseQualityWhenPositive(item);
-
-                    DecrementSellIn(item);
-
-                    if (item.SellIn < 0)
-                    {
-                        DecreaseQualityWhenPositive(item);
-                    }
-
+                    HandleNormalItem(item);
                     break;
                 }
-            }
-        }
-
-        private static void HandleBackstagePass(Item item)
-        {
-            IncrementQualityIfNotMaxAlready(item);
-
-            if (item.SellIn <= TenDays)
-            {
-                IncrementQualityIfNotMaxAlready(item);
-            }
-
-            if (item.SellIn <= FiveDays)
-            {
-                IncrementQualityIfNotMaxAlready(item);
-            }
-
-            DecrementSellIn(item);
-
-            if (item.SellIn < 0)
-            {
-                item.Quality = item.Quality - item.Quality;
             }
         }
 
@@ -108,12 +71,56 @@ namespace GildedRose.Cli
         {
             IncrementQualityIfNotMaxAlready(item);
 
-            DecrementSellIn(item);
-
-            if (item.SellIn < 0)
+            if (HasExpired(item))
             {
                 IncrementQualityIfNotMaxAlready(item);
             }
+        }
+
+        private static void HandleBackstagePass(Item item)
+        {
+            IncrementQualityIfNotMaxAlready(item);
+
+            if (item.SellIn < TenDays)
+            {
+                IncrementQualityIfNotMaxAlready(item);
+            }
+
+            if (item.SellIn < FiveDays)
+            {
+                IncrementQualityIfNotMaxAlready(item);
+            }
+
+            if (HasExpired(item))
+            {
+                DropQualityToZero(item);
+            }
+        }
+
+        private static void HandleConjured(Item item)
+        {
+            DecreaseQualityWhenPositive(item);
+            DecreaseQualityWhenPositive(item);
+
+            if (HasExpired(item))
+            {
+                DecreaseQualityWhenPositive(item);
+            }
+        }
+
+        private static void HandleNormalItem(Item item)
+        {
+            DecreaseQualityWhenPositive(item);
+            
+            if (HasExpired(item))
+            {
+                DecreaseQualityWhenPositive(item);
+            }
+        }
+
+        private static void DropQualityToZero(Item item)
+        {
+            item.Quality = 0;
         }
 
         private static void DecreaseQualityWhenPositive(Item item)
@@ -135,6 +142,10 @@ namespace GildedRose.Cli
             {
                 item.Quality = item.Quality + 1;
             }
+        }
+        private static bool HasExpired(Item item)
+        {
+            return item.SellIn < 0;
         }
     }
 }
